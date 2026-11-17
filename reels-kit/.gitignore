@@ -1,0 +1,12 @@
+work/
+seq/
+out4k/
+final/
+prev/
+frames/
+models/
+cover/face.png
+cover/ex.jpg
+cover/mesh.js
+render/meshtrack.js
+__pycache__/

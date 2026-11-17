@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ar"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Alex;src:url(../fonts/Alexandria[wght].ttf);font-weight:100 900}
+@font-face{font-family:Sora;src:url(../fonts/Sora[wght].ttf);font-weight:100 800}
+@font-face{font-family:Inter;src:url(../fonts/Inter[opsz,wght].ttf);font-weight:100 900}
+:root{--g:#2BFFA0;--g2:#00D68F;--c:#22D3EE;--b:#3B82F6;--ink:#04060A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#04060A}
+#stage{position:absolute;inset:0;overflow:hidden;transform-origin:540px 960px}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+.abs{position:absolute}
+.glass{background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1.5px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);border-radius:34px}
+.en{font-family:Sora;direction:ltr}
+.ar{font-family:Alex;direction:rtl}
+/* portal (face circle / example card) */
+#portalWrap{position:absolute;left:0;top:0;width:0;height:0}
+#portal{position:absolute;overflow:hidden;background:#000;will-change:transform}
+#portal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#portalGlow{position:absolute;border-radius:50%;pointer-events:none}
+#ring{position:absolute;pointer-events:none}
+#meshSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* captions */
+#cap{position:absolute;left:110px;right:110px;top:1440px;height:140px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
+  direction:rtl;gap:0 18px;font-family:Alex;font-weight:800;font-size:74px;line-height:1.15;color:#fff}
+#cap .w{display:inline-block;white-space:nowrap;text-shadow:0 6px 24px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.9)}
+#cap .w.act{color:#4DFFB0;text-shadow:0 0 26px rgba(43,255,160,.7),0 0 6px rgba(43,255,160,.5),0 6px 20px rgba(0,0,0,.85)}
+#cap .w.kw{font-family:Sora;font-weight:800;direction:ltr;font-size:64px;padding:2px 22px 8px;border-radius:22px;
+  background:linear-gradient(135deg,rgba(43,255,160,.22),rgba(34,211,238,.14));border:2px solid rgba(43,255,160,.6);color:#E9FFF5;
+  box-shadow:0 0 30px rgba(43,255,160,.35),inset 0 0 18px rgba(43,255,160,.15);text-shadow:0 0 16px rgba(43,255,160,.8)}
+#cap .w.big{font-size:92px}
+/* title */
+#title{position:absolute;left:0;right:0;top:300px;text-align:center}
+#tRow{display:flex;justify-content:center;align-items:center;direction:ltr;height:250px}
+#tPills{display:flex;justify-content:center;gap:18px;margin-top:6px;direction:rtl}
+#tWord{font-family:Sora;font-weight:800;font-size:104px;letter-spacing:8px;white-space:nowrap;filter:drop-shadow(0 0 26px rgba(43,255,160,.35)) drop-shadow(0 10px 26px rgba(0,0,0,.6))}
+#tWord span{display:inline-block;background:linear-gradient(180deg,#FFFFFF 0%,#E3ECF3 42%,#8FA3B5 58%,#F4FFFA 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 2px}
+#tFour{position:relative;margin-left:16px;font-family:Sora;font-weight:800;font-size:230px;line-height:1;
+  background:linear-gradient(160deg,#EFFFF7 10%,#2BFFA0 45%,#00B37A 70%,#22D3EE);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 40px rgba(43,255,160,.65)) drop-shadow(0 18px 30px rgba(0,0,0,.6))}
+.pill{display:inline-flex;align-items:center;gap:12px;padding:12px 26px;border-radius:999px;font-weight:700;white-space:nowrap}
+#newPill{font-family:Sora;font-size:30px;letter-spacing:4px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);box-shadow:0 0 40px rgba(43,255,160,.6)}
+#verPill{font-family:Alex;font-size:34px;color:#DFFFF0;background:rgba(43,255,160,.10);border:1.5px solid rgba(43,255,160,.45)}
+/* UI window */
+#win{position:absolute;left:120px;top:300px;width:840px;height:560px;overflow:hidden}
+#win .bar{height:64px;display:flex;align-items:center;gap:12px;padding:0 26px;border-bottom:1px solid rgba(255,255,255,.08)}
+#win .dot{width:16px;height:16px;border-radius:50%}
+#win .wt{font-family:Sora;font-size:24px;color:rgba(255,255,255,.75);margin-left:14px;font-weight:600;letter-spacing:.5px}
+#side{position:absolute;left:0;top:64px;bottom:0;width:86px;border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;gap:22px;padding-top:26px}
+#side i{display:block;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+#side i.on{background:linear-gradient(135deg,#2BFFA0,#22D3EE);box-shadow:0 0 22px rgba(43,255,160,.6)}
+#viewer{position:absolute;left:106px;top:84px;width:470px;height:380px;border-radius:20px;overflow:hidden;background:radial-gradient(120% 90% at 50% 40%,#16242a,#070b0e);border:1px solid rgba(255,255,255,.08)}
+#viewer canvas{width:470px;height:380px}
+#props{position:absolute;left:596px;top:84px;width:222px}
+.prop{height:66px;border-radius:16px;margin-bottom:12px;padding:10px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-family:Sora}
+.prop b{display:block;font-size:15px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:1px}
+.prop span{font-size:22px;color:#fff;font-weight:700}
+.prop span.g{color:#2BFFA0}
+#prog{position:absolute;left:106px;right:22px;bottom:26px;height:56px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+#progFill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(43,255,160,.15),rgba(43,255,160,.55));box-shadow:0 0 30px rgba(43,255,160,.5)}
+#progTxt{position:absolute;left:20px;top:0;bottom:0;display:flex;align-items:center;font-family:Sora;font-size:21px;font-weight:700;color:#E9FFF5;letter-spacing:1px}
+#progPct{position:absolute;right:20px;top:0;bottom:0;display:flex;align-items:center;font-family:Sora;font-size:22px;font-weight:800;color:#2BFFA0}
+#ae{position:absolute;width:150px;height:150px;border-radius:36px;background:linear-gradient(160deg,#1a1450,#00005B);border:3px solid #9999FF;
+  display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:700;font-size:74px;color:#9999FF;
+  box-shadow:0 0 50px rgba(153,153,255,.55),0 20px 40px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.2)}
+#aeLbl{position:absolute;font-family:Sora;font-size:28px;font-weight:700;color:#E8E8FF;white-space:nowrap}
+/* example scene */
+#exBg{position:absolute;left:-60px;top:-60px;width:1200px;height:2040px;object-fit:cover;opacity:0}
+#exHead{position:absolute;left:0;right:0;top:330px;text-align:center}
+#exChip{font-family:Alex;font-size:36px;color:#DFFFF0;background:rgba(4,6,10,.55);border:1.5px solid rgba(43,255,160,.5);box-shadow:0 0 30px rgba(43,255,160,.25)}
+#exChip i{width:16px;height:16px;border-radius:50%;background:#FF3B5C;box-shadow:0 0 16px #FF3B5C;display:inline-block}
+#exTitle{font-family:Sora;font-weight:800;font-size:66px;color:#fff;margin-top:22px;letter-spacing:2px;text-shadow:0 0 30px rgba(43,255,160,.5),0 8px 30px rgba(0,0,0,.7)}
+#exTitle em{font-style:normal;background:linear-gradient(90deg,#2BFFA0,#22D3EE);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hud{position:absolute;width:56px;height:56px;border-color:#2BFFA0;border-style:solid;border-width:0;filter:drop-shadow(0 0 10px rgba(43,255,160,.8))}
+#chips{position:absolute;left:120px;right:120px;top:1180px;display:flex;justify-content:center;gap:16px;direction:rtl}
+.chip{font-family:Alex;font-size:30px;color:#EFFFF7;padding:12px 24px;border-radius:999px;background:rgba(4,6,10,.6);border:1.5px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.chip .ck{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2BFFA0,#22D3EE);color:#04060A;font-family:Sora;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center}
+.chip.en{font-family:Sora;font-weight:700;direction:ltr}
+/* CTA */
+#cmt{position:absolute;left:120px;top:300px;width:840px;height:600px}
+#cmtHead{position:absolute;left:30px;right:30px;top:26px;display:flex;justify-content:space-between;align-items:center;direction:rtl}
+#cmtHead .h{font-family:Alex;font-weight:700;font-size:36px;color:#fff}
+#cmtHead .n{font-family:Sora;font-size:24px;color:rgba(255,255,255,.5)}
+.av{width:72px;height:72px;border-radius:50%;flex:none}
+#posted{position:absolute;left:30px;right:30px;top:110px;height:120px;display:flex;align-items:center;gap:20px;direction:rtl;padding:0 20px;border-radius:26px;background:rgba(43,255,160,.07);border:1.5px solid rgba(43,255,160,.3)}
+#posted .u{font-family:Sora;font-size:22px;color:rgba(255,255,255,.55);font-weight:600;direction:ltr;text-align:right}
+#posted .t{font-family:Alex;font-size:38px;color:#fff;font-weight:700}
+#posted .hrt{margin-right:auto;font-size:40px;color:#FF3B5C}
+#dm{position:absolute;left:30px;right:30px;top:270px;height:150px}
+#dmBubble{position:absolute;left:0;top:0;height:120px;display:flex;align-items:center;gap:18px;padding:0 30px;border-radius:30px 30px 30px 8px;
+  background:linear-gradient(135deg,#7C3AED,#2563EB 55%,#22D3EE);box-shadow:0 20px 50px rgba(37,99,235,.45);direction:rtl}
+#dmBubble .t{font-family:Alex;font-weight:700;font-size:36px;color:#fff;white-space:nowrap}
+#dmBubble .f{width:70px;height:70px;border-radius:18px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800;font-size:22px;color:#fff}
+#seen{position:absolute;left:8px;top:132px;font-family:Alex;font-size:24px;color:rgba(255,255,255,.6)}
+#input{position:absolute;left:30px;right:30px;bottom:28px;height:96px;border-radius:999px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.14);display:flex;align-items:center;padding:0 16px 0 30px;direction:rtl;gap:16px}
+#input .t{font-family:Alex;font-size:36px;color:#fff;flex:1;white-space:nowrap;overflow:hidden}
+#input .t.ph{color:rgba(255,255,255,.35)}
+#caret{display:inline-block;width:3px;height:40px;background:#2BFFA0;vertical-align:middle;margin-right:4px}
+#send{width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#2BFFA0,#22D3EE);display:flex;align-items:center;justify-content:center;flex:none}
+#plane{position:absolute;width:70px;height:70px}
+#free{position:absolute;left:0;right:0;top:690px;text-align:center}
+#freeTxt{display:inline-block;font-family:Alex;font-weight:900;font-size:150px;line-height:1.1;
+  background:linear-gradient(180deg,#FFFFFF 0%,#FFF3B0 35%,#FFC24B 60%,#FF8A00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 40px rgba(255,180,40,.6)) drop-shadow(0 14px 26px rgba(0,0,0,.6))}
+#freeEn{display:inline-block;font-family:Sora;font-weight:800;font-size:34px;letter-spacing:12px;color:#FFD66B;margin-top:-6px}
+/* OS */
+.os{position:absolute;top:320px;width:380px;height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.os .lbl{font-family:Sora;font-weight:700;font-size:40px;color:#fff}
+.os .ck2{position:absolute;right:22px;top:22px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2BFFA0,#22D3EE);color:#04060A;font-family:Sora;font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(43,255,160,.6)}
+#win4{display:grid;grid-template-columns:62px 62px;gap:8px;transform:perspective(400px) rotateY(-14deg)}
+#win4 i{display:block;width:62px;height:62px;background:linear-gradient(135deg,#7DD3FC,#0EA5E9);border-radius:6px;box-shadow:0 0 24px rgba(14,165,233,.6)}
+#cmd{font-family:Inter;font-size:120px;font-weight:300;line-height:1;color:#fff;text-shadow:0 0 30px rgba(255,255,255,.5)}
+/* power */
+#power{position:absolute;left:0;right:0;top:330px;text-align:center}
+#powTxt{display:inline-block;font-family:Alex;font-weight:900;font-size:250px;line-height:1.05;
+  background:linear-gradient(180deg,#FFFFFF 0%,#E6FFF4 30%,#2BFFA0 62%,#00A86B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 50px rgba(43,255,160,.6)) drop-shadow(0 18px 30px rgba(0,0,0,.6))}
+#powSub{font-family:Sora;font-weight:700;font-size:40px;color:#E9FFF5;letter-spacing:3px}
+#meter{position:relative;margin:34px auto 0;width:700px;height:30px;border-radius:999px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);overflow:hidden}
+#meterFill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#00D68F,#2BFFA0,#B9FFDF);box-shadow:0 0 30px rgba(43,255,160,.8)}
+#shock{position:absolute;border-radius:50%;border:6px solid rgba(43,255,160,.9);pointer-events:none}
+#flash{position:absolute;inset:0;background:radial-gradient(60% 40% at 50% 45%,rgba(220,255,240,.9),rgba(43,255,160,.25) 50%,transparent 75%);mix-blend-mode:screen;opacity:0;pointer-events:none}
+/* end */
+#endSub{position:absolute;left:0;right:0;top:640px;text-align:center;font-family:Sora;font-weight:600;font-size:34px;color:rgba(233,255,245,.85);letter-spacing:6px}
+#grain{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.07;pointer-events:none}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 75% at 50% 48%,transparent 55%,rgba(0,0,0,.55) 100%)}
+#wipe{position:absolute;inset:0;pointer-events:none;opacity:0}
+</style></head>
+<body>
+<div id="stage">
+  <canvas id="bg" width="2160" height="3840"></canvas>
+  <img id="exBg">
+  <div id="exDim" class="abs" style="inset:0;background:linear-gradient(180deg,rgba(4,6,10,.72),rgba(4,6,10,.55) 45%,rgba(4,6,10,.85));opacity:0"></div>
+
+  <!-- title -->
+  <div id="title"><div id="tRow"><div id="tWord"></div><div id="tFour">4</div></div>
+    <div id="tPills"><div id="verPill" class="pill ar">النسخة الرابعة</div><div id="newPill" class="pill">NEW</div></div></div>
+  <div id="endSub" class="en">MESH TRACKING · AFTER EFFECTS</div>
+
+  <!-- UI window -->
+  <div id="win" class="glass">
+    <div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><span class="wt">Lockdown 4 — Workspace</span></div>
+    <div id="side"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <div id="viewer"><canvas id="vc" width="940" height="760"></canvas></div>
+    <div id="props">
+      <div class="prop"><b>TRACK POINTS</b><span id="pPts">0</span></div>
+      <div class="prop"><b>MESH</b><span>7 × 7 Warp</span></div>
+      <div class="prop"><b>STATUS</b><span id="pSt" class="g">Ready</span></div>
+      <div class="prop"><b>ATTACH LAYER</b><span>Logo.png</span></div>
+    </div>
+    <div id="prog"><div id="progFill"></div><div id="progTxt">MESH TRACKING</div><div id="progPct">0%</div></div>
+  </div>
+  <div id="ae">Ae</div>
+
+  <!-- example head & chips -->
+  <div id="exHead"><div id="exChip" class="pill"><i></i>مثال تطبيقي</div><div id="exTitle" class="en">LIVE <em>MESH</em> TRACK</div></div>
+  <div id="chips">
+    <div class="chip" id="c1"><span class="ck">✓</span>حركة واقعية</div>
+    <div class="chip en" id="c2"><span class="ck">✓</span>Mesh Tracking</div>
+  </div>
+
+  <!-- CTA -->
+  <div id="cmt" class="glass">
+    <div id="cmtHead"><span class="h">التعليقات</span><span class="n" id="cmtN">1.2K</span></div>
+    <div id="posted"><div class="av" style="background:linear-gradient(135deg,#2BFFA0,#3B82F6)"></div><div><div class="u">@you</div><div class="t" id="postedT">Lockdown 🔒</div></div><div class="hrt" id="hrt">♥</div></div>
+    <div id="dm"><div id="dmBubble"><div class="f">.zip</div><div class="t">وصلك البلجن ✓</div></div><div id="seen">⚡ مباشرة — مجانًا</div></div>
+    <div id="input"><div class="av" style="width:58px;height:58px;background:linear-gradient(135deg,#2BFFA0,#3B82F6)"></div><div class="t" id="typed"></div>
+      <div id="send"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M3 11.5L21 3l-6.5 18-3-7.5L3 11.5z" fill="#04060A"/></svg></div></div>
+  </div>
+  <svg id="plane" viewBox="0 0 24 24"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B9FFDF"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs><path d="M3 11.5L21 3l-6.5 18-3-7.5L3 11.5z" fill="url(#pg)"/></svg>
+  <div id="free"><div id="freeTxt">مجانًا</div><br><div id="freeEn">FREE</div></div>
+
+  <!-- OS -->
+  <div class="os glass" id="osW" style="left:120px"><div id="win4"><i></i><i></i><i></i><i></i></div><div class="lbl">Windows</div><div class="ck2">✓</div></div>
+  <div class="os glass" id="osM" style="left:580px"><div id="cmd">⌘</div><div class="lbl">macOS</div><div class="ck2">✓</div></div>
+
+  <!-- power -->
+  <div id="power"><div id="powTxt">أقوى</div><div id="powSub">MESH TRACKING PLUGIN</div><div id="meter"><div id="meterFill"></div></div></div>
+
+  <canvas id="grain" width="540" height="960"></canvas>
+  <div id="vig"></div>
+  <!-- portal: face / example -->
+  <div id="portalGlow"></div>
+  <svg id="ring" viewBox="0 0 1000 1000">
+    <defs>
+      <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2BFFA0"/><stop offset=".5" stop-color="#22D3EE" stop-opacity=".2"/><stop offset="1" stop-color="#2BFFA0"/></linearGradient>
+      <path id="cpath" d="M500,500 m-455,0 a455,455 0 1,1 910,0 a455,455 0 1,1 -910,0"/>
+    </defs>
+    <circle id="ringC" cx="500" cy="500" r="410" fill="none" stroke="url(#rg)" stroke-width="5"/>
+    <circle id="ticks" cx="500" cy="500" r="432" fill="none" stroke="rgba(43,255,160,.55)" stroke-width="10" stroke-dasharray="2 22"/>
+    <g id="ctext"><text font-family="Sora" font-weight="700" font-size="34" letter-spacing="9" fill="rgba(233,255,245,.85)"><textPath href="#cpath">LOCKDOWN 4 • MESH TRACKING • AFTER EFFECTS • LOCKDOWN 4 • MESH TRACKING • AFTER EFFECTS •</textPath></text></g>
+  </svg>
+  <div id="portal">
+    <img id="faceImg"><img id="exImg">
+    <svg id="meshSvg" viewBox="0 0 1000 1000" preserveAspectRatio="none"><g id="meshG"></g></svg>
+    <div id="hud1" class="hud" style="left:20px;top:20px;border-left-width:5px;border-top-width:5px"></div>
+    <div id="hud2" class="hud" style="right:20px;top:20px;border-right-width:5px;border-top-width:5px"></div>
+    <div id="hud3" class="hud" style="left:20px;bottom:20px;border-left-width:5px;border-bottom-width:5px"></div>
+    <div id="hud4" class="hud" style="right:20px;bottom:20px;border-right-width:5px;border-bottom-width:5px"></div>
+    <div id="scan" class="abs" style="left:0;right:0;height:120px;background:linear-gradient(180deg,transparent,rgba(43,255,160,.28),transparent);mix-blend-mode:screen"></div>
+    <div id="portalFlash" class="abs" style="inset:0;background:#E9FFF5;opacity:0"></div>
+  </div>
+  <div id="portalBorder" class="abs" style="pointer-events:none"></div>
+
+  <div id="cap"></div>
+  <div id="shock"></div>
+  <div id="flash"></div>
+  <div id="wipe"></div>
+</div>
+<script src="meshtrack.js"></script>
+<script src="main.js"></script>
+</body></html>
