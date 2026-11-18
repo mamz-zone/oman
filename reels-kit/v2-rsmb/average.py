@@ -6,6 +6,11 @@ while True:
     dones = [d for d in sorted(glob.glob(os.path.join(sub, '*.done'))) if int(os.path.basename(d)[:5]) % MOD == REM]
     for d in dones:
         name = os.path.basename(d)[:-5]; n = int(open(d).read())
+        paths = [os.path.join(sub, f'{name}_{k:02d}.png') for k in range(n)]
+        if not all(os.path.exists(x) for x in paths):  # incomplete set: drop it, the supervisor re-renders the frame
+            for x in paths:
+                if os.path.exists(x): os.remove(x)
+            os.remove(d); continue
         if n == 1:
             im = cv2.imread(os.path.join(sub, f'{name}_00.png'))
             cv2.imwrite(os.path.join(out, name + '.jpg'), im, params); os.remove(os.path.join(sub, f'{name}_00.png')); os.remove(d); continue

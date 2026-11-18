@@ -9,9 +9,12 @@ const path = require('path'), fs = require('fs');
   const [a, b] = spec.split('-').map(Number);
   const exists = f => { const n = String(f).padStart(5, '0'); return fs.existsSync(path.join(outDir, n + '.jpg')) || fs.existsSync(path.join(subDir, n + '.done')); };
   const all = []; for (let i = a; i <= b; i++) all.push(i);
-  const per = Math.ceil(all.length / workers);
-  const chunks = Array.from({ length: workers }, (_, k) => all.slice(k * per, (k + 1) * per));
-  const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--font-render-hinting=none'] });
+  // shared queue of contiguous blocks containing at least one missing frame
+  const BLK = 40, queue = [];
+  for (let i = 0; i < all.length; i += BLK) { const blk = all.slice(i, i + BLK); if (blk.some(f => !exists(f))) queue.push(blk); }
+  console.log('blocks to render', queue.length);
+  const launch = () => chromium.launch({ args: ['--force-color-profile=srgb', '--font-render-hinting=none'] });
+  const browsers = [];
   const url = 'file://' + path.join(__dirname, 'index.html');
   const t0 = Date.now(); let done = 0, shots = 0;
   const log = fs.createWriteStream(path.join(outDir, 'samples.log'), { flags: 'a' });
@@ -23,11 +26,14 @@ const path = require('path'), fs = require('fs');
       if (d > disp && d < 2500) disp = d; }
     return disp;
   };
-  await Promise.all(chunks.map(async list => {
-    if (!list.length) return;
+  await Promise.all(Array.from({ length: workers }, async () => {
+    const browser = await launch(); browsers.push(browser); // one browser per worker -> parallel raster
     const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 2 });
+    page.setDefaultTimeout(0);
     page.on('pageerror', e => console.error('PAGEERR', e.message));
     await page.goto(url); await page.evaluate(() => window.ready);
+    while (queue.length) {
+    const list = queue.shift();
     let prev = await page.evaluate(async t => { await window.renderFrame(t); return window.probeRects(); }, (list[0] - 1) / 60);
     for (const f of list) {
       const t = f / 60, name = String(f).padStart(5, '0');
@@ -37,21 +43,21 @@ const path = require('path'), fs = require('fs');
       const n = disp < 1.5 ? 1 : Math.max(3, Math.min(24, Math.ceil(disp / 2.5)));
       log.write(`${f} ${n} ${disp.toFixed(1)}\n`);
       if (n === 1) {
-        await page.screenshot({ path: path.join(subDir, `${name}_00.png`), type: 'png' }); shots++;
+        await page.screenshot({ path: path.join(subDir, `${name}_00.png`), type: 'png', timeout: 0 }); shots++;
         fs.writeFileSync(path.join(subDir, name + '.done'), '1');
       } else {
         for (let k = 0; k < n; k++) {
           const tk = t - SH / 2 + SH * (k + .5) / n;
           await page.evaluate(t => window.renderFrame(t), tk);
-          await page.screenshot({ path: path.join(subDir, `${name}_${String(k).padStart(2, '0')}.png`), type: 'png' }); shots++;
+          await page.screenshot({ path: path.join(subDir, `${name}_${String(k).padStart(2, '0')}.png`), type: 'png', timeout: 0 }); shots++;
         }
         fs.writeFileSync(path.join(subDir, name + '.done'), String(n));
-        await page.evaluate(t => window.renderFrame(t), t);
       }
       if (++done % 100 === 0) console.log(done, '/', all.length, 'shots', shots, ((Date.now() - t0) / done).toFixed(0) + 'ms/f');
     }
+    }
     await page.close();
   }));
-  await browser.close(); log.end();
+  for (const b of browsers) await b.close(); log.end();
   console.log('done', all.length, 'frames', shots, 'shots in', ((Date.now() - t0) / 1000).toFixed(1), 's');
 })();

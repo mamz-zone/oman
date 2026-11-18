@@ -317,7 +317,7 @@ window.renderFrame = async function (t) {
       const ht = $('hookT');
       apply(h, st);
       ht.style.textShadow = dgText('g', flare(t, .3) * .9);
-      ht.style.letterSpacing = lerp(40, 6, eout(P(t, .15, .9))) + 'px';
+      ht.style.letterSpacing = lerp(14, 6, eout(P(t, .15, .9))) + 'px';
       $('hookS').style.opacity = P(t, .7, 1.1);
     }
   }
