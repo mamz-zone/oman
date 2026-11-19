@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ar"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Alex;src:url(../fonts/Alexandria[wght].ttf);font-weight:100 900}
+@font-face{font-family:Sora;src:url(../fonts/Sora[wght].ttf);font-weight:100 800}
+@font-face{font-family:Inter;src:url(../fonts/Inter[opsz,wght].ttf);font-weight:100 900}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#04060A}
+#stage{position:absolute;inset:0;overflow:hidden;transform-origin:540px 960px}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+.abs{position:absolute}
+.glass{background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.035));border:1.5px solid rgba(255,255,255,.15);box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.2);border-radius:34px}
+.pill{display:inline-flex;align-items:center;gap:12px;padding:12px 26px;border-radius:999px;font-weight:700;white-space:nowrap}
+.vl{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+.vl img{position:absolute;inset:0;width:1080px;height:1920px;display:block}
+#shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,transparent 14%,transparent 55%,rgba(0,0,0,.55) 75%,rgba(0,0,0,.75) 100%)}
+#ring{position:absolute;pointer-events:none}
+#glowC{position:absolute;border-radius:50%;pointer-events:none}
+#border{position:absolute;border-radius:50%;pointer-events:none;box-shadow:0 0 0 3px rgba(43,255,160,.85),0 0 40px rgba(43,255,160,.35)}
+/* captions */
+#cap{position:absolute;left:100px;right:100px;top:1440px;height:140px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;direction:rtl;gap:0 18px;font-family:Alex;font-weight:800;font-size:74px;line-height:1.18;color:#fff}
+.w{display:inline-block;white-space:nowrap;text-shadow:0 6px 24px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.9)}
+.w.act{color:#4DFFB0;text-shadow:0 0 18px rgba(43,255,160,.6),0 6px 20px rgba(0,0,0,.85)}
+.w.kw{font-family:Sora;font-weight:800;direction:ltr;font-size:60px;padding:2px 22px 8px;border-radius:22px;background:linear-gradient(135deg,rgba(43,255,160,.22),rgba(34,211,238,.14));border:2px solid rgba(43,255,160,.6);color:#E9FFF5;box-shadow:0 0 22px rgba(43,255,160,.3);text-shadow:0 0 12px rgba(43,255,160,.7)}
+.w.dg{color:#F4FFFA}
+.w.num{font-family:Sora;font-weight:800;direction:ltr;font-size:84px;color:#F4FFFA}
+/* generic tiles */
+.tile{position:absolute;width:190px;height:190px;border-radius:48px;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,rgba(255,255,255,.16),rgba(255,255,255,.04));border:1.5px solid rgba(255,255,255,.2);box-shadow:0 30px 60px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.25)}
+.tile svg{width:100px;height:100px;overflow:visible}
+.chip{font-family:Sora;font-weight:700;font-size:28px;color:#EFFFF7;padding:12px 22px;border-radius:999px;background:rgba(10,14,20,.72);border:1.5px solid rgba(255,255,255,.18);display:inline-flex;align-items:center;gap:12px;white-space:nowrap;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.chip.ar{font-family:Alex}
+.ck{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2BFFA0,#22D3EE);color:#04060A;font-family:Sora;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center}
+.xx{width:30px;height:30px;border-radius:50%;background:#FF3B5C;color:#fff;font-family:Sora;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center}
+/* hook cube */
+#cube{position:absolute;left:400px;top:1000px;width:280px;height:280px}
+#hookT{position:absolute;left:0;right:0;top:1250px;text-align:center;font-family:Sora;font-weight:800;font-size:40px;letter-spacing:12px;color:rgba(233,255,245,.9)}
+/* light match */
+#lm{position:absolute;left:120px;top:300px;width:840px;height:560px}
+#sun{position:absolute;left:40px;top:40px;width:150px;height:150px}
+#sphere{position:absolute;left:300px;top:150px;width:260px;height:260px;border-radius:50%}
+#sShadow{position:absolute;left:300px;top:400px;width:260px;height:40px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent)}
+#eqSign{position:absolute;left:600px;top:200px;width:200px;text-align:center;font-family:Sora;font-weight:800;font-size:120px;color:#FF3B5C}
+#lmTag{position:absolute;left:0;right:0;bottom:10px;text-align:center}
+#ray{position:absolute;left:0;top:0;width:840px;height:560px;pointer-events:none}
+/* easy comp title */
+#ec{position:absolute;left:0;right:0;top:300px;text-align:center}
+#ecRow{display:inline-flex;align-items:center;gap:20px;direction:ltr}
+#ecWord{font-family:Sora;font-weight:800;font-size:128px;letter-spacing:4px;line-height:1;background:linear-gradient(180deg,#FFFFFF 0%,#E3ECF3 42%,#8FA3B5 58%,#F4FFFA 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#ecAI{font-family:Sora;font-weight:800;font-size:58px;letter-spacing:4px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);padding:8px 22px;border-radius:20px}
+#ecBy{font-family:Sora;font-weight:600;font-size:28px;letter-spacing:6px;color:rgba(233,255,245,.75);margin-top:16px}
+#short{position:absolute;left:120px;top:560px;width:840px;height:300px}
+/* social */
+.sb{position:absolute;top:1080px;width:250px;height:110px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:16px;font-family:Alex;font-weight:800;font-size:40px;color:#fff;background:rgba(10,14,20,.55);border:2px solid rgba(255,255,255,.22);box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2)}
+.sb svg{width:46px;height:46px}
+.sb.on{background:linear-gradient(135deg,rgba(43,255,160,.35),rgba(34,211,238,.25));border-color:rgba(43,255,160,.9)}
+#bell{position:absolute;left:470px;top:1230px;width:140px;height:140px}
+/* element card */
+#elCard{position:absolute;left:350px;top:290px;width:380px;height:587px;border-radius:26px;overflow:hidden;box-shadow:0 0 0 3px rgba(43,255,160,.8),0 0 40px rgba(43,255,160,.3),0 30px 60px rgba(0,0,0,.7)}
+#elCard img{width:100%;height:100%;display:block}
+#elCard svg{position:absolute;inset:0;width:100%;height:100%}
+#elTag{position:absolute;left:14px;top:14px;font-family:Sora;font-weight:800;font-size:17px;letter-spacing:2px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);padding:6px 12px;border-radius:10px}
+.sideChip{position:absolute}
+/* AE look */
+.ae{font-family:Inter;color:#C9CDD2;background:#1d1f22;border:1px solid #2c2f34;box-shadow:0 0 50px rgba(43,255,160,.18),0 40px 90px rgba(0,0,0,.7)}
+#comp{position:absolute;left:100px;top:300px;width:1008px;height:300px;transform-origin:0 0;border-radius:12px;overflow:visible}
+#compIn{position:absolute;inset:0;border-radius:12px;overflow:hidden}
+.tabs{position:absolute;left:0;right:0;top:0;height:30px;display:flex;align-items:center;gap:26px;padding:0 16px;font-size:13px;color:#aaa;border-bottom:1px solid #2c2f34;background:#232528}
+.tabs b{color:#ddd;font-weight:600}
+.tc{position:absolute;left:12px;top:36px;font-family:Inter;font-weight:600;font-size:18px;color:#3B9CFF}
+.tcs{position:absolute;left:12px;top:58px;font-size:10px;color:#3B9CFF}
+.search{position:absolute;left:96px;top:38px;width:390px;height:22px;border-radius:4px;background:#141517;border:1px solid #333}
+.colh{position:absolute;left:0;right:0;top:74px;height:22px;border-bottom:1px solid #2c2f34;font-size:11px;color:#9a9ea4;display:flex;align-items:center}
+.lrow{position:absolute;left:0;width:500px;height:17px;display:flex;align-items:center;font-size:12px;color:#d6d9dd}
+.lrow.sel{background:#3a3d42}
+.eye{position:absolute;left:6px;width:13px;height:9px}
+.lnum{position:absolute;left:92px;width:20px;text-align:center}
+.lcol{position:absolute;left:58px;width:10px;height:10px;border-radius:2px}
+.licon{position:absolute;left:118px;width:12px;height:12px;border-radius:2px}
+.lname{position:absolute;left:138px;white-space:nowrap}
+.lsw{position:absolute;left:316px;font-size:11px;color:#bbb}
+#menu{position:absolute;left:500px;top:2px;width:250px;background:#2b2d31;border:1px solid #3d4046;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:12.5px;color:#d6d9dd;padding:4px 0}
+#sub{position:absolute;left:752px;top:2px;width:245px;background:#2b2d31;border:1px solid #3d4046;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:12.5px;color:#d6d9dd;padding:4px 0}
+.mi{height:22px;line-height:22px;padding:0 28px;position:relative;white-space:nowrap}
+.mi.sep{height:1px;background:#3d4046;margin:4px 0;padding:0}
+.mi.hl{background:#3a3d42}
+.mi .ar{position:absolute;right:10px}
+/* quick apply */
+#qa{position:absolute;left:155px;top:300px;width:482px;height:355px;transform-origin:0 0;border-radius:6px;overflow:hidden}
+.qaBar{height:34px;background:#E6168C;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;padding:0 12px}
+.qaS{position:absolute;left:46px;top:46px;right:14px;height:30px;border:1.5px solid #3B9CFF;border-radius:4px;background:#141517;color:#fff;font-size:15px;display:flex;align-items:center;padding-left:30px}
+.qaW{position:absolute;left:12px;top:46px;width:28px;height:30px;border-radius:4px;background:#2b2d31}
+.qaL{position:absolute;left:12px;top:84px;right:14px;height:198px;background:#232528;border:1px solid #333;overflow:hidden}
+.qr{height:24.7px;display:flex;align-items:center;gap:10px;padding:0 10px;font-size:13px;color:#ddd;white-space:nowrap;position:relative}
+.qr .s{color:#8a8f96;font-size:12px}
+.qr.hl{background:#1F6FD6}
+.qr .btn{position:absolute;right:10px;background:#2b6fd0;border:1px solid #6aa5ff;color:#fff;font-size:12px;padding:2px 14px;border-radius:12px}
+.qaK{position:absolute;left:0;right:0;top:292px;font-size:11.5px;color:#ddd}
+.qaK div{display:flex;justify-content:center;gap:10px;height:20px;align-items:center}
+.qaK span{background:#2b2d31;border-radius:3px;padding:0 6px;color:#aaa}
+/* effect controls */
+#fxp{position:absolute;left:255px;top:295px;width:367px;height:374px;transform-origin:0 0;border-radius:6px;overflow:visible}
+#fxIn{position:absolute;inset:0;border-radius:6px;overflow:hidden}
+.fr{position:absolute;left:0;right:0;height:22px;display:flex;align-items:center;font-size:12.5px;color:#C9CDD2;white-space:nowrap}
+.fr .k{position:absolute}
+.dd{position:absolute;height:19px;border-radius:3px;background:#2b2e33;border:1px solid #3a3e44;display:flex;align-items:center;justify-content:space-between;padding:0 6px;font-size:11.5px;color:#E5E7EA}
+.btnG{position:absolute;height:17px;border-radius:9px;background:#5a5e64;font-size:11px;color:#ddd;display:flex;align-items:center;justify-content:center}
+#ddList{position:absolute;left:224px;top:56px;width:150px;background:#2b2d31;border:1px solid #3d4046;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.6);font-size:12px;color:#ddd;padding:4px 0}
+#ddList .o{height:22px;line-height:22px;padding:0 10px 0 22px;position:relative;white-space:nowrap}
+#ddList .o.hl{background:#1F6FD6;color:#fff}
+#ddList .o.sep{height:1px;background:#3d4046;margin:3px 0;padding:0}
+/* strength */
+#stp{position:absolute;left:156px;top:300px;width:352px;height:219px;transform-origin:0 0;border-radius:6px;overflow:hidden}
+#stSlider{position:absolute;left:20px;right:20px;height:4px;top:132px;border-radius:2px;background:#555}
+#stFill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2BFFA0,#22D3EE);border-radius:2px}
+#stKnob{position:absolute;top:-7px;width:18px;height:18px;border-radius:50%;background:#ddd;border:2px solid #888}
+#hlBox{position:absolute;border:2px solid #2BFFA0;border-radius:6px;box-shadow:0 0 16px rgba(43,255,160,.6),inset 0 0 12px rgba(43,255,160,.2);pointer-events:none}
+/* examples */
+#exImg2wrap{position:absolute;inset:0}
+#wipeLine{position:absolute;top:0;bottom:0;width:6px;margin-left:-3px;background:#fff;box-shadow:0 0 20px rgba(43,255,160,.9)}
+#wipeKnob{position:absolute;width:70px;height:70px;margin-left:-35px;border-radius:50%;background:rgba(4,6,10,.75);border:3px solid #2BFFA0;display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800;color:#fff;font-size:26px}
+.exL{position:absolute;right:120px;top:330px}
+.ba{position:absolute;top:1300px;font-family:Sora;font-weight:800;font-size:26px;letter-spacing:3px;padding:8px 16px;border-radius:12px}
+/* local AI */
+#ai{position:absolute;left:0;right:0;top:1000px;text-align:center}
+#aiChip{display:inline-flex;align-items:center;gap:18px;padding:18px 34px;border-radius:30px;background:rgba(10,14,20,.72);border:2px solid rgba(43,255,160,.7);font-family:Sora;font-weight:800;font-size:46px;color:#F4FFFA;letter-spacing:3px}
+#aiChip svg{width:64px;height:64px}
+#xs{position:absolute;left:100px;right:100px;top:1170px;display:flex;justify-content:center;gap:14px}
+.xp{position:relative;font-family:Alex;font-weight:800;font-size:32px;color:#fff;padding:14px 22px;border-radius:22px;background:rgba(10,14,20,.75);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;gap:12px;white-space:nowrap}
+.xp.en{font-family:Sora;direction:ltr}
+.xp .st{position:absolute;left:8px;right:8px;top:50%;height:5px;margin-top:-2px;background:#FF3B5C;border-radius:3px;box-shadow:0 0 10px #FF3B5C;transform-origin:0 50%}
+/* CTA */
+#cmt{position:absolute;left:120px;top:300px;width:840px;height:580px}
+#cmtHead{position:absolute;left:30px;right:30px;top:26px;display:flex;justify-content:space-between;align-items:center;direction:rtl}
+#cmtHead .h{font-family:Alex;font-weight:700;font-size:36px;color:#fff}
+#cmtHead .n{font-family:Sora;font-size:24px;color:rgba(255,255,255,.5)}
+.av{width:72px;height:72px;border-radius:50%;flex:none}
+#posted{position:absolute;left:30px;right:30px;top:100px;height:120px;display:flex;align-items:center;gap:20px;direction:rtl;padding:0 20px;border-radius:26px;background:rgba(43,255,160,.07);border:1.5px solid rgba(43,255,160,.3)}
+#posted .u{font-family:Sora;font-size:22px;color:rgba(255,255,255,.55);font-weight:600;direction:ltr;text-align:right}
+#posted .t{font-family:Alex;font-size:38px;color:#fff;font-weight:700}
+#posted .hrt{margin-right:auto;font-size:40px;color:#FF3B5C}
+#dm{position:absolute;left:30px;right:30px;top:250px;height:150px}
+#dmBubble{position:absolute;left:0;top:0;height:120px;display:flex;align-items:center;gap:18px;padding:0 30px;border-radius:30px 30px 30px 8px;background:linear-gradient(135deg,#7C3AED,#2563EB 55%,#22D3EE);box-shadow:0 20px 50px rgba(37,99,235,.45);direction:rtl}
+#dmBubble .t{font-family:Alex;font-weight:700;font-size:36px;color:#fff;white-space:nowrap}
+#seen{position:absolute;left:8px;top:132px;font-family:Alex;font-size:26px;color:#FFD66B}
+#input{position:absolute;left:30px;right:30px;bottom:28px;height:96px;border-radius:999px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.14);display:flex;align-items:center;padding:0 16px 0 30px;direction:rtl;gap:16px}
+#input .t{font-family:Alex;font-size:36px;color:#fff;flex:1;white-space:nowrap;overflow:hidden}
+#input .t.ph{color:rgba(255,255,255,.35)}
+#caret{display:inline-block;width:3px;height:40px;background:#2BFFA0;vertical-align:middle;margin-right:4px}
+#send{width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#2BFFA0,#22D3EE);display:flex;align-items:center;justify-content:center;flex:none}
+#plane{position:absolute;width:70px;height:70px}
+#cursor{position:absolute;width:56px;height:56px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
+#clickRing{position:absolute;border-radius:50%;border:4px solid rgba(43,255,160,.9);pointer-events:none}
+#flash{position:absolute;inset:0;background:radial-gradient(60% 40% at 50% 45%,rgba(230,255,245,.95),rgba(43,255,160,.25) 55%,transparent 80%);mix-blend-mode:screen;opacity:0;pointer-events:none}
+#wflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#streaks{position:absolute;inset:0;pointer-events:none;opacity:0}
+#grain{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.06;pointer-events:none}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 75% at 50% 48%,transparent 55%,rgba(0,0,0,.55) 100%)}
+</style></head>
+<body>
+<div id="stage">
+  <canvas id="bg" width="2160" height="3840"></canvas>
+  <canvas id="grain" width="540" height="960"></canvas>
+  <div id="vig"></div>
+
+  <div id="exV" class="vl"><img id="exImg"><div id="exImg2wrap"><img id="exImg2"></div><div id="wipeLine"></div><div id="wipeKnob">⇆</div></div>
+  <div id="mainV" class="vl"><img id="mainImg"></div>
+  <div id="shade"></div>
+  <div id="glowC"></div>
+  <div id="border"></div>
+  <svg id="ring" viewBox="0 0 1000 1000">
+    <defs>
+      <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2BFFA0"/><stop offset=".5" stop-color="#22D3EE" stop-opacity=".2"/><stop offset="1" stop-color="#2BFFA0"/></linearGradient>
+      <path id="cpath" d="M500,500 m-455,0 a455,455 0 1,1 910,0 a455,455 0 1,1 -910,0"/>
+    </defs>
+    <circle id="ringC" cx="500" cy="500" r="410" fill="none" stroke="url(#rg)" stroke-width="5"/>
+    <circle id="ticks" cx="500" cy="500" r="432" fill="none" stroke="rgba(43,255,160,.55)" stroke-width="10" stroke-dasharray="2 22"/>
+    <g id="ctext"><text font-family="Sora" font-weight="700" font-size="34" letter-spacing="9" fill="rgba(233,255,245,.85)"><textPath href="#cpath">EASY COMP • AI COLOR MATCH • 3D COMPOSITING • EASY COMP • AI COLOR MATCH • 3D COMPOSITING •</textPath></text></g>
+  </svg>
+
+  <!-- hook cube -->
+  <svg id="cube" viewBox="-100 -100 200 200"><g id="cubeG"></g></svg>
+  <div id="hookT">3D COMPOSITING</div>
+
+  <!-- light match -->
+  <div id="lm" class="glass">
+    <svg id="sun" viewBox="0 0 100 100"><defs><radialGradient id="gs"><stop offset="0" stop-color="#FFFBEA"/><stop offset=".6" stop-color="#FFD66B"/><stop offset="1" stop-color="#FF9F1C"/></radialGradient></defs><circle cx="50" cy="50" r="22" fill="url(#gs)"/><g stroke="#FFD66B" stroke-width="5" stroke-linecap="round"><path d="M50 8v12M50 80v12M8 50h12M80 50h12M20 20l9 9M71 71l9 9M20 80l9-9M71 29l9-9"/></g></svg>
+    <svg id="ray" viewBox="0 0 840 560"><path id="rayP" d="M150 140 L420 260" stroke="#FFD66B" stroke-width="6" stroke-dasharray="14 12" fill="none"/></svg>
+    <div id="sShadow"></div>
+    <div id="sphere"></div>
+    <div id="eqSign">≠</div>
+    <div id="lmTag"><span class="chip ar" id="lmChip"><span class="xx" id="lmIco">✕</span><span id="lmTxt">إضاءة غير مطابقة</span></span></div>
+  </div>
+
+  <!-- easy comp title -->
+  <div id="ec"><div id="ecRow"><div id="ecWord">EASY COMP</div><div id="ecAI">AI</div></div><div id="ecBy">BY BLACE PLUGINS</div></div>
+  <svg id="short" viewBox="0 0 840 300">
+    <path id="longP" d="M60 150 C 160 20, 220 280, 320 150 S 480 20, 560 150 S 700 280, 780 150" stroke="rgba(255,255,255,.35)" stroke-width="8" fill="none" stroke-dasharray="16 14" stroke-linecap="round"/>
+    <path id="fastP" d="M60 150 L780 150" stroke="#2BFFA0" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path id="fastA" d="M760 120 L800 150 L760 180" stroke="#2BFFA0" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="60" cy="150" r="16" fill="#22D3EE"/>
+  </svg>
+
+  <!-- social -->
+  <div class="sb" id="bLike" style="left:680px"><svg viewBox="0 0 100 100"><path d="M50 88 C20 66 6 50 6 32 C6 18 17 8 30 8 C39 8 46 13 50 20 C54 13 61 8 70 8 C83 8 94 18 94 32 C94 50 80 66 50 88Z" fill="#FF3B5C"/></svg>لايك</div>
+  <div class="sb" id="bShare" style="left:415px"><svg viewBox="0 0 24 24"><path d="M3 11.5L21 3l-6.5 18-3-7.5L3 11.5z" fill="#22D3EE"/></svg>شير</div>
+  <div class="sb" id="bFollow" style="left:150px"><svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="4.2" fill="#2BFFA0"/><path d="M2.5 21c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7z" fill="#2BFFA0"/><path d="M19 7v6M16 10h6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>فولو</div>
+  <svg id="bell" viewBox="0 0 100 100"><defs><linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF3B0"/><stop offset="1" stop-color="#FFB020"/></linearGradient></defs><path d="M50 10c-17 0-28 13-28 30v18l-9 14h74l-9-14V40c0-17-11-30-28-30z" fill="url(#gb)"/><circle cx="50" cy="82" r="9" fill="url(#gb)"/></svg>
+
+  <!-- 3D element card -->
+  <div id="elCard"><img src="../assets/8.png"><svg viewBox="0 0 466 720" preserveAspectRatio="none"><g id="trk"></g></svg><div id="elTag">3D CAMERA TRACKER</div></div>
+  <div class="sideChip chip" id="chEl"><span class="ck">✓</span>3D Model</div>
+  <div class="sideChip chip" id="chTr"><span class="ck">✓</span>Camera Tracking</div>
+
+  <!-- comp panel (layers + context menu) -->
+  <div id="comp"><div id="compIn" class="ae">
+    <div class="tabs"><span>IMG_8365</span><span>Render Queue</span><b>× Pre-comp 1 ≡</b></div>
+    <div class="tc">0:00:00:00</div><div class="tcs">00000 (30.00 fps)</div><div class="search"></div>
+    <div class="colh"><span style="position:absolute;left:8px">◉ ◖ ● 🔒</span><span style="position:absolute;left:92px">#</span><span style="position:absolute;left:138px">Source Name</span><span style="position:absolute;left:316px">⊕ ✲ ⟍ fx ▣ ◐ ◎ ⬡</span><span style="position:absolute;left:450px">Parent</span></div>
+    <div id="rows"></div>
+  </div>
+  <div id="menu"></div><div id="sub"></div></div>
+
+  <!-- quick apply -->
+  <div id="qa" class="ae">
+    <div class="qaBar">Quick Apply<span style="margin-left:auto;font-size:18px">✕</span></div>
+    <div class="qaW"></div><div class="qaS"><span style="position:absolute;left:8px;color:#aaa">⌕</span><span id="qaTxt"></span><span id="qaCaret" style="display:inline-block;width:1.5px;height:16px;background:#fff;margin-left:1px"></span></div>
+    <div class="qaL" id="qaList"></div>
+    <div class="qaK"><div>Apply to Selected Layer(s) <span>Enter</span></div><div>Apply to New Solid <span>Ctrl + Enter</span></div><div>Apply to New Adjustment Layer <span>Ctrl + Alt + Enter</span></div></div>
+  </div>
+
+  <!-- effect controls (background layer) -->
+  <div id="fxp"><div id="fxIn" class="ae"></div><div id="ddList"></div></div>
+
+  <!-- strength -->
+  <div id="stp" class="ae"></div>
+  <div id="hlBox"></div>
+
+  <!-- example labels -->
+  <div class="exL" id="exL1"><span class="chip ar"><span class="ck" style="background:#9aa3ad">●</span>الفيديو الأصلي</span></div>
+  <div class="exL" id="exL2"><span class="chip ar"><span class="xx">✕</span>المودل بدون Plugin</span></div>
+  <div class="exL" id="exL3"><span class="chip ar"><span class="ck">✓</span>مع Easy Comp</span></div>
+  <div class="ba" id="baL" style="background:rgba(4,6,10,.75);color:#fff">BEFORE</div>
+  <div class="ba" id="baR" style="background:linear-gradient(90deg,#2BFFA0,#22D3EE);color:#04060A">AFTER</div>
+
+  <!-- local AI -->
+  <div id="ai"><div id="aiChip"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3" fill="#2BFFA0"/><rect x="9" y="9" width="6" height="6" rx="1" fill="#04060A"/><g stroke="#2BFFA0" stroke-width="1.6"><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></g></svg>LOCAL AI</div></div>
+  <div id="xs">
+    <div class="xp" id="x1"><span class="xx">✕</span>تسجيل دخول<div class="st"></div></div>
+    <div class="xp en" id="x2"><span class="xx">✕</span>API Key<div class="st"></div></div>
+    <div class="xp en" id="x3"><span class="xx">✕</span>Credits<div class="st"></div></div>
+  </div>
+
+  <!-- CTA -->
+  <div id="cmt" class="glass">
+    <div id="cmtHead"><span class="h">التعليقات</span><span class="n">3.1K</span></div>
+    <div id="posted"><div class="av" style="background:linear-gradient(135deg,#2BFFA0,#3B82F6)"></div><div><div class="u">@you</div><div class="t" id="postedT"></div></div><div class="hrt" id="hrt">♥</div></div>
+    <div id="dm"><div id="dmBubble"><div class="t">تم الرد على تعليقك ✓</div></div><div id="seen">⚡ رد مباشر</div></div>
+    <div id="input"><div class="av" style="width:58px;height:58px;background:linear-gradient(135deg,#2BFFA0,#3B82F6)"></div><div class="t" id="typed"></div>
+      <div id="send"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M3 11.5L21 3l-6.5 18-3-7.5L3 11.5z" fill="#04060A"/></svg></div></div>
+  </div>
+  <svg id="plane" viewBox="0 0 24 24"><path d="M3 11.5L21 3l-6.5 18-3-7.5L3 11.5z" fill="#B9FFDF"/></svg>
+
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M4 2 L4 20 L9 15 L12.5 22 L15.5 20.5 L12 13.5 L19 13.5 Z" fill="#fff" stroke="#04060A" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <div id="clickRing"></div>
+
+  <div id="cap"></div>
+  <canvas id="streaks" width="1080" height="1920"></canvas>
+  <div id="flash"></div>
+  <div id="wflash"></div>
+</div>
+<script src="face.js"></script>
+<script src="main.js"></script>
+</body></html>
