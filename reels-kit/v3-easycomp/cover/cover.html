@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ar"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Alex;src:url(../fonts/Alexandria[wght].ttf);font-weight:100 900}
+@font-face{font-family:Sora;src:url(../fonts/Sora[wght].ttf);font-weight:100 800}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#04060A}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+.pill{display:inline-flex;align-items:center;gap:12px;padding:12px 26px;border-radius:999px;font-weight:700;white-space:nowrap}
+#pills{position:absolute;left:0;right:0;top:268px;display:flex;justify-content:center}
+#new{font-family:Sora;font-size:30px;letter-spacing:4px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);box-shadow:0 0 30px rgba(43,255,160,.5)}
+#tRow{position:absolute;left:0;right:0;top:340px;height:200px;display:flex;justify-content:center;align-items:center;direction:ltr;gap:20px}
+#tWord{font-family:Sora;font-weight:800;font-size:132px;letter-spacing:4px;line-height:1;white-space:nowrap;
+  background:linear-gradient(180deg,#FFFFFF 0%,#E3ECF3 42%,#8FA3B5 58%,#F4FFFA 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 20px rgba(43,255,160,.3)) drop-shadow(0 10px 26px rgba(0,0,0,.6))}
+#tAI{font-family:Sora;font-weight:800;font-size:62px;letter-spacing:4px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);padding:8px 24px;border-radius:20px;box-shadow:0 0 34px rgba(43,255,160,.55),0 14px 30px rgba(0,0,0,.5)}
+#head{position:absolute;left:0;right:0;top:560px;text-align:center}
+#h1{display:inline-block;font-family:Alex;font-weight:900;font-size:108px;line-height:1.08;direction:rtl;color:#F4FFFA;
+  text-shadow:0 0 2px rgba(255,255,255,.9),0 0 10px rgba(43,255,160,.85),0 0 30px rgba(43,255,160,.5)}
+#kw{display:inline-block;margin-top:34px;font-family:Sora;font-weight:800;font-size:50px;letter-spacing:3px;padding:6px 32px 12px;border-radius:26px;
+  background:linear-gradient(135deg,rgba(43,255,160,.24),rgba(34,211,238,.14));border:2.5px solid rgba(43,255,160,.7);color:#E9FFF5;
+  box-shadow:0 0 26px rgba(43,255,160,.35);text-shadow:0 0 12px rgba(43,255,160,.7)}
+#card{position:absolute;left:95px;top:850px;width:390px;height:693px;border-radius:28px;overflow:hidden;transform:rotate(-6deg);
+  box-shadow:0 0 0 3px rgba(43,255,160,.85),0 0 40px rgba(43,255,160,.3),0 30px 60px rgba(0,0,0,.7)}
+#card img{width:100%;height:100%;display:block;object-fit:cover}
+#split{position:absolute;left:50%;top:0;bottom:0;width:5px;margin-left:-2.5px;background:#fff;box-shadow:0 0 16px rgba(43,255,160,.9)}
+#knob{position:absolute;left:50%;top:56%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:rgba(4,6,10,.8);border:3px solid #2BFFA0;display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800;color:#fff;font-size:24px}
+.ba{position:absolute;top:18px;font-family:Sora;font-weight:800;font-size:19px;letter-spacing:2px;padding:6px 12px;border-radius:10px}
+#lblB{left:14px;background:rgba(4,6,10,.75);color:#fff}
+#lblA{right:14px;background:linear-gradient(90deg,#2BFFA0,#22D3EE);color:#04060A}
+#glow{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(43,255,160,.28) 0%,rgba(34,211,238,.10) 45%,transparent 68%)}
+#face{position:absolute;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px rgba(43,255,160,.85),0 0 40px rgba(43,255,160,.4),0 40px 90px rgba(0,0,0,.65)}
+#face img{width:100%;height:100%;display:block}
+#ring{position:absolute}
+#chips{position:absolute;left:120px;right:120px;top:1575px;display:flex;justify-content:center;gap:14px}
+.chip{font-family:Sora;font-weight:700;font-size:27px;color:#EFFFF7;padding:12px 20px;border-radius:999px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:12px;white-space:nowrap;box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.ae{width:38px;height:38px;border-radius:11px;background:linear-gradient(160deg,#1a1450,#00005B);border:2px solid #9999FF;color:#9999FF;font-size:19px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.dot{width:16px;height:16px;border-radius:50%;background:#2BFFA0;box-shadow:0 0 10px #2BFFA0}
+#grain{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.06}
+#vig{position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 48%,transparent 55%,rgba(0,0,0,.55) 100%)}
+</style></head><body>
+<canvas id="bg" width="2160" height="3840"></canvas>
+<canvas id="grain" width="540" height="960"></canvas>
+<div id="vig"></div>
+<div id="pills"><div id="new" class="pill">PLUGIN</div></div>
+<div id="tRow"><div id="tWord">EASY COMP</div><div id="tAI">AI</div></div>
+<div id="head"><div id="h1">مطابقة الإضاءة</div><br><div id="kw">AI COLOR MATCH</div></div>
+
+<div id="card"><img src="cmp.jpg"><div id="split"></div><div id="knob">⇆</div><div class="ba" id="lblB">BEFORE</div><div class="ba" id="lblA">AFTER</div></div>
+
+<div id="glow"></div>
+<svg id="ring" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2BFFA0"/><stop offset=".5" stop-color="#22D3EE" stop-opacity=".2"/><stop offset="1" stop-color="#2BFFA0"/></linearGradient>
+    <path id="cpath" d="M500,500 m-455,0 a455,455 0 1,1 910,0 a455,455 0 1,1 -910,0"/>
+  </defs>
+  <circle cx="500" cy="500" r="410" fill="none" stroke="url(#rg)" stroke-width="5" transform="rotate(40 500 500)"/>
+  <circle cx="500" cy="500" r="432" fill="none" stroke="rgba(43,255,160,.55)" stroke-width="10" stroke-dasharray="2 22"/>
+  <g transform="rotate(-100 500 500)"><text font-family="Sora" font-weight="700" font-size="34" letter-spacing="9" fill="rgba(233,255,245,.85)"><textPath href="#cpath">EASY COMP • AI COLOR MATCH • 3D COMPOSITING • EASY COMP • AI COLOR MATCH • 3D COMPOSITING •</textPath></text></g>
+</svg>
+<div id="face"><img src="face.png"></div>
+
+<div id="chips">
+  <div class="chip"><span class="ae">Ae</span>After Effects</div>
+  <div class="chip"><span class="dot"></span>Local AI</div>
+  <div class="chip"><span class="dot"></span>3D Compositing</div>
+</div>
+<script>
+const FC={cx:768,cy:1215,d:430};
+const set=(id,o)=>Object.assign(document.getElementById(id).style,o);
+set('face',{left:FC.cx-FC.d/2+'px',top:FC.cy-FC.d/2+'px',width:FC.d+'px',height:FC.d+'px'});
+const rs=FC.d*1.3; set('ring',{left:FC.cx-rs/2+'px',top:FC.cy-rs/2+'px',width:rs+'px',height:rs+'px'});
+const gs=FC.d*1.7; set('glow',{left:FC.cx-gs/2+'px',top:FC.cy-gs/2+'px',width:gs+'px',height:gs+'px'});
+const bx=document.getElementById('bg').getContext('2d');bx.setTransform(2,0,0,2,0,0);
+bx.fillStyle='#04060A';bx.fillRect(0,0,1080,1920);bx.globalCompositeOperation='lighter';
+for(const[x,y,r,c,a] of [[560,560,780,[0,194,122],.6],[160,1350,720,[10,124,255],.45],[930,1100,640,[43,255,160],.35],[540,1750,700,[34,211,238],.25]]){
+  const g=bx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(${c},${a*.55})`);g.addColorStop(.45,`rgba(${c},${a*.18})`);g.addColorStop(1,'rgba(0,0,0,0)');bx.fillStyle=g;bx.fillRect(0,0,1080,1920);}
+const t=2.3,hor=1020,f=640,wave=(x,z)=>.1*Math.sin(x*2.1+t*1.6+z*.7)+.07*Math.cos(z*1.9-t*1.2),proj=(x,z)=>[540+x*f/z,hor+(1-wave(x,z))*f/z];
+bx.lineWidth=1.4;
+for(let i=0;i<=18;i++){const z=1+i*.35;bx.beginPath();for(let j=0;j<=60;j++){const[sx,sy]=proj(-3.2+6.4*j/60,z);j?bx.lineTo(sx,sy):bx.moveTo(sx,sy);}bx.strokeStyle=`rgba(43,255,160,${.24*(1-i/18)})`;bx.stroke();}
+for(let j=0;j<=22;j++){const x=-3.2+6.4*j/22;bx.beginPath();for(let i=0;i<=40;i++){const[sx,sy]=proj(x,1+6.3*i/40);i?bx.lineTo(sx,sy):bx.moveTo(sx,sy);}const gr=bx.createLinearGradient(0,1920,0,hor+40);gr.addColorStop(0,'rgba(43,255,160,.22)');gr.addColorStop(1,'rgba(0,0,0,0)');bx.strokeStyle=gr;bx.stroke();}
+function rnd(i){const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x);}
+for(let k=0;k<110;k++){const x=rnd(k)*1080,y=rnd(k+7)*1920,a=.15+.5*rnd(k+11),r=.8+2.4*rnd(k+5);bx.fillStyle=`rgba(200,255,230,${a*.6})`;bx.beginPath();bx.arc(x,y,r,0,7);bx.fill();}
+bx.globalCompositeOperation='source-over';
+const gx=document.getElementById('grain').getContext('2d'),gi=gx.createImageData(540,960);let s=12345;
+for(let i=0;i<gi.data.length;i+=4){s=(s*1103515245+12345)&0x7fffffff;const v=(s>>16)&255;gi.data[i]=gi.data[i+1]=gi.data[i+2]=v;gi.data[i+3]=255;}gx.putImageData(gi,0,0);
+window.ready=document.fonts.ready;
+</script></body></html>
