@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ar"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Alex;src:url(../fonts/Alexandria[wght].ttf);font-weight:100 900}
+@font-face{font-family:Sora;src:url(../fonts/Sora[wght].ttf);font-weight:100 800}
+@font-face{font-family:Inter;src:url(../fonts/Inter[opsz,wght].ttf);font-weight:100 900}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#04060A}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+.pill{display:inline-flex;align-items:center;gap:12px;padding:12px 26px;border-radius:999px;font-weight:700;white-space:nowrap}
+#pills{position:absolute;left:0;right:0;top:268px;display:flex;justify-content:center;gap:16px;direction:rtl}
+#ver{font-family:Alex;font-size:34px;color:#DFFFF0;background:rgba(43,255,160,.10);border:1.5px solid rgba(43,255,160,.45)}
+#new{font-family:Sora;font-size:30px;letter-spacing:4px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);box-shadow:0 0 40px rgba(43,255,160,.6)}
+#tRow{position:absolute;left:0;right:0;top:335px;height:230px;display:flex;justify-content:center;align-items:center;direction:ltr;gap:22px}
+#tWord{font-family:Sora;font-weight:800;font-size:176px;letter-spacing:8px;line-height:1;white-space:nowrap;
+  background:linear-gradient(180deg,#FFFFFF 0%,#E3ECF3 42%,#8FA3B5 58%,#F4FFFA 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 26px rgba(43,255,160,.35)) drop-shadow(0 10px 26px rgba(0,0,0,.6))}
+#tPro{font-family:Sora;font-weight:800;font-size:66px;letter-spacing:6px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);padding:10px 26px;border-radius:22px;
+  box-shadow:0 0 50px rgba(43,255,160,.65),0 14px 30px rgba(0,0,0,.5)}
+#head{position:absolute;left:0;right:0;top:580px;text-align:center}
+#h1{display:inline-block;font-family:Alex;font-weight:900;font-size:132px;line-height:1.08;direction:rtl;color:#F4FFFA;
+  text-shadow:0 0 1.5px rgba(255,255,255,.95),0 0 5px rgba(43,255,160,.95),0 0 12px rgba(43,255,160,.85),0 0 28px rgba(43,255,160,.7),0 0 60px rgba(43,255,160,.45),0 0 120px rgba(43,255,160,.3)}
+#kw{display:inline-block;margin-top:10px;font-family:Sora;font-weight:800;font-size:54px;letter-spacing:3px;padding:6px 34px 12px;border-radius:26px;
+  background:linear-gradient(135deg,rgba(43,255,160,.24),rgba(34,211,238,.14));border:2.5px solid rgba(43,255,160,.7);color:#E9FFF5;
+  box-shadow:0 0 40px rgba(43,255,160,.4),inset 0 0 22px rgba(43,255,160,.18);text-shadow:0 0 18px rgba(43,255,160,.8)}
+#glow{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(43,255,160,.30) 0%,rgba(34,211,238,.10) 45%,transparent 68%)}
+#face{position:absolute;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px rgba(43,255,160,.85),0 0 70px rgba(43,255,160,.45),0 40px 90px rgba(0,0,0,.65)}
+#face img{width:100%;height:100%;display:block}
+#ring{position:absolute}
+#card{position:absolute;width:250px;height:444px;border-radius:26px;overflow:hidden;transform:rotate(-8deg);
+  box-shadow:0 0 0 3px rgba(43,255,160,.8),0 0 50px rgba(43,255,160,.35),0 30px 60px rgba(0,0,0,.7)}
+#card img{width:100%;height:100%;object-fit:cover;display:block}
+.hud{position:absolute;width:30px;height:30px;border-color:#2BFFA0;border-style:solid;border-width:0;filter:drop-shadow(0 0 8px rgba(43,255,160,.8))}
+#live{position:absolute;left:12px;top:12px;font-family:Sora;font-weight:800;font-size:17px;letter-spacing:2px;color:#fff;background:rgba(4,6,10,.7);padding:6px 12px;border-radius:999px;display:flex;align-items:center;gap:8px}
+#live i{width:10px;height:10px;border-radius:50%;background:#FF3B5C;box-shadow:0 0 10px #FF3B5C}
+#static{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;border:3px dashed #2BFFA0;filter:drop-shadow(0 0 8px rgba(43,255,160,.9))}
+#stTag{position:absolute;left:50%;top:27%;transform:translateX(-50%);font-family:Sora;font-weight:800;font-size:15px;letter-spacing:2px;color:#04060A;background:linear-gradient(90deg,#2BFFA0,#22D3EE);padding:4px 10px;border-radius:8px;white-space:nowrap}
+#seal{position:absolute;width:250px;height:250px;border-radius:50%;transform:rotate(12deg);
+  background:radial-gradient(circle at 35% 30%,#B9FFDF 0%,#2BFFA0 45%,#00A86B 100%);
+  box-shadow:0 0 60px rgba(43,255,160,.55),0 24px 50px rgba(0,0,0,.6),inset 0 -8px 20px rgba(0,80,50,.35),inset 0 6px 14px rgba(255,255,255,.6);
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+#seal::before{content:"";position:absolute;inset:12px;border-radius:50%;border:3px dashed rgba(0,60,35,.45)}
+#seal .a{font-family:Sora;font-weight:800;font-size:22px;letter-spacing:4px;color:#05301F}
+#seal .v{font-family:Sora;font-weight:800;font-size:76px;line-height:1;color:#04241A}
+#seal .e{font-family:Alex;font-weight:800;font-size:26px;color:#05301F;margin-top:6px}
+#chips{position:absolute;left:120px;right:120px;top:1520px;display:flex;justify-content:center;gap:14px}
+.chip{font-family:Sora;font-weight:700;font-size:28px;color:#EFFFF7;padding:12px 22px;border-radius:999px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.16);display:flex;align-items:center;gap:12px;white-space:nowrap;box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.ae{width:40px;height:40px;border-radius:11px;background:linear-gradient(160deg,#1a1450,#00005B);border:2px solid #9999FF;color:#9999FF;font-size:20px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.pr{width:40px;height:40px;border-radius:11px;background:linear-gradient(160deg,#2a0b3a,#00005B);border:2px solid #EA77FF;color:#EA77FF;font-size:20px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.dot{width:16px;height:16px;border-radius:50%;background:#2BFFA0;box-shadow:0 0 12px #2BFFA0}
+#grain{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.06}
+#vig{position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 48%,transparent 55%,rgba(0,0,0,.55) 100%)}
+</style></head><body>
+<canvas id="bg" width="2160" height="3840"></canvas>
+<canvas id="grain" width="540" height="960"></canvas>
+<div id="vig"></div>
+
+<div id="pills"><div id="ver" class="pill">إفكت الأعراس والإيفنتات</div><div id="new" class="pill">PLUGIN</div></div>
+<div id="tRow"><div id="tWord">RSMB</div><div id="tPro">PRO</div></div>
+<div id="head"><div id="h1">ضبابية الحركة</div><br><div id="kw">TIME-LAPSE LOOK</div></div>
+
+<div id="glow"></div>
+<svg id="ring" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2BFFA0"/><stop offset=".5" stop-color="#22D3EE" stop-opacity=".2"/><stop offset="1" stop-color="#2BFFA0"/></linearGradient>
+    <path id="cpath" d="M500,500 m-455,0 a455,455 0 1,1 910,0 a455,455 0 1,1 -910,0"/>
+  </defs>
+  <circle cx="500" cy="500" r="410" fill="none" stroke="url(#rg)" stroke-width="5" transform="rotate(40 500 500)"/>
+  <circle cx="500" cy="500" r="432" fill="none" stroke="rgba(43,255,160,.55)" stroke-width="10" stroke-dasharray="2 22"/>
+  <g transform="rotate(-100 500 500)"><text font-family="Sora" font-weight="700" font-size="34" letter-spacing="9" fill="rgba(233,255,245,.85)"><textPath href="#cpath">RSMB PRO • MOTION BLUR • TIME-LAPSE LOOK • RSMB PRO • MOTION BLUR • TIME-LAPSE LOOK •</textPath></text></g>
+</svg>
+<div id="face"><img src="face.png"></div>
+
+<div id="card"><img src="demo.jpg">
+  <div class="hud" style="left:10px;bottom:10px;border-left-width:4px;border-bottom-width:4px"></div>
+  <div class="hud" style="right:10px;top:10px;border-right-width:4px;border-top-width:4px"></div>
+  <div class="hud" style="right:10px;bottom:10px;border-right-width:4px;border-bottom-width:4px"></div>
+  <div id="live"><i></i>TIME-LAPSE</div>
+  <div id="stTag">● STATIC</div><div id="static"></div></div>
+
+<div id="seal"><div class="a">BLUR AMT</div><div class="v">5.0</div><div class="e">ضبابية أكثر</div></div>
+
+<div id="chips">
+  <div class="chip"><span class="ae">Ae</span>After Effects</div>
+  <div class="chip"><span class="pr">Pr</span>Premiere</div>
+  <div class="chip"><span class="dot"></span>Optical Flow</div>
+</div>
+<script>
+const FC={cx:540,cy:1175,d:540};
+const set=(id,o)=>Object.assign(document.getElementById(id).style,o);
+set('face',{left:FC.cx-FC.d/2+'px',top:FC.cy-FC.d/2+'px',width:FC.d+'px',height:FC.d+'px'});
+const rs=FC.d*1.3; set('ring',{left:FC.cx-rs/2+'px',top:FC.cy-rs/2+'px',width:rs+'px',height:rs+'px'});
+const gs=FC.d*1.7; set('glow',{left:FC.cx-gs/2+'px',top:FC.cy-gs/2+'px',width:gs+'px',height:gs+'px'});
+set('card',{left:'92px',top:'1040px'});
+set('seal',{left:'748px',top:'880px'});
+const bx=document.getElementById('bg').getContext('2d');bx.setTransform(2,0,0,2,0,0);
+bx.fillStyle='#04060A';bx.fillRect(0,0,1080,1920);bx.globalCompositeOperation='lighter';
+for(const[x,y,r,c,a] of [[560,560,780,[0,194,122],.6],[160,1350,720,[10,124,255],.45],[930,1100,640,[43,255,160],.35],[540,1750,700,[34,211,238],.25]]){
+  const g=bx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(${c},${a*.55})`);g.addColorStop(.45,`rgba(${c},${a*.18})`);g.addColorStop(1,'rgba(0,0,0,0)');bx.fillStyle=g;bx.fillRect(0,0,1080,1920);}
+const t=2.3,hor=1020,f=640,wave=(x,z)=>.1*Math.sin(x*2.1+t*1.6+z*.7)+.07*Math.cos(z*1.9-t*1.2),proj=(x,z)=>[540+x*f/z,hor+(1-wave(x,z))*f/z];
+bx.lineWidth=1.4;
+for(let i=0;i<=18;i++){const z=1+i*.35;bx.beginPath();for(let j=0;j<=60;j++){const[sx,sy]=proj(-3.2+6.4*j/60,z);j?bx.lineTo(sx,sy):bx.moveTo(sx,sy);}bx.strokeStyle=`rgba(43,255,160,${.24*(1-i/18)})`;bx.stroke();}
+for(let j=0;j<=22;j++){const x=-3.2+6.4*j/22;bx.beginPath();for(let i=0;i<=40;i++){const[sx,sy]=proj(x,1+6.3*i/40);i?bx.lineTo(sx,sy):bx.moveTo(sx,sy);}const gr=bx.createLinearGradient(0,1920,0,hor+40);gr.addColorStop(0,'rgba(43,255,160,.22)');gr.addColorStop(1,'rgba(0,0,0,0)');bx.strokeStyle=gr;bx.stroke();}
+function rnd(i){const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x);}
+for(let k=0;k<110;k++){const x=rnd(k)*1080,y=rnd(k+7)*1920,a=.15+.5*rnd(k+11),r=.8+2.4*rnd(k+5);bx.fillStyle=`rgba(200,255,230,${a*.6})`;bx.beginPath();bx.arc(x,y,r,0,7);bx.fill();}
+// light streaks (motion-blur motif)
+for(let k=0;k<14;k++){const y=200+rnd(k+40)*1500,len=200+500*rnd(k+41),x=rnd(k+42)*1080-200,h=1.5+4*rnd(k+43);const g=bx.createLinearGradient(x,0,x+len,0);g.addColorStop(0,'rgba(43,255,160,0)');g.addColorStop(.5,'rgba(43,255,160,.35)');g.addColorStop(1,'rgba(43,255,160,0)');bx.fillStyle=g;bx.fillRect(x,y,len,h);}
+bx.globalCompositeOperation='source-over';
+const gx=document.getElementById('grain').getContext('2d'),gi=gx.createImageData(540,960);let s=12345;
+for(let i=0;i<gi.data.length;i+=4){s=(s*1103515245+12345)&0x7fffffff;const v=(s>>16)&255;gi.data[i]=gi.data[i+1]=gi.data[i+2]=v;gi.data[i+3]=255;}gx.putImageData(gi,0,0);
+window.ready=document.fonts.ready;
+</script></body></html>
