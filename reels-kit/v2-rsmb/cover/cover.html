@@ -55,7 +55,7 @@ canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
 <canvas id="grain" width="540" height="960"></canvas>
 <div id="vig"></div>
 
-<div id="pills"><div id="ver" class="pill">إفكت الأعراس والإيفنتات</div><div id="new" class="pill">PLUGIN</div></div>
+<div id="pills"><div id="new" class="pill">PLUGIN</div></div>
 <div id="tRow"><div id="tWord">RSMB</div><div id="tPro">PRO</div></div>
 <div id="head"><div id="h1">ضبابية الحركة</div><br><div id="kw">TIME-LAPSE LOOK</div></div>
 
@@ -78,7 +78,6 @@ canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
   <div id="live"><i></i>TIME-LAPSE</div>
   <div id="stTag">● STATIC</div><div id="static"></div></div>
 
-<div id="seal"><div class="a">BLUR AMT</div><div class="v">5.0</div><div class="e">ضبابية أكثر</div></div>
 
 <div id="chips">
   <div class="chip"><span class="ae">Ae</span>After Effects</div>
@@ -92,7 +91,6 @@ set('face',{left:FC.cx-FC.d/2+'px',top:FC.cy-FC.d/2+'px',width:FC.d+'px',height:
 const rs=FC.d*1.3; set('ring',{left:FC.cx-rs/2+'px',top:FC.cy-rs/2+'px',width:rs+'px',height:rs+'px'});
 const gs=FC.d*1.7; set('glow',{left:FC.cx-gs/2+'px',top:FC.cy-gs/2+'px',width:gs+'px',height:gs+'px'});
 set('card',{left:'92px',top:'1040px'});
-set('seal',{left:'748px',top:'880px'});
 const bx=document.getElementById('bg').getContext('2d');bx.setTransform(2,0,0,2,0,0);
 bx.fillStyle='#04060A';bx.fillRect(0,0,1080,1920);bx.globalCompositeOperation='lighter';
 for(const[x,y,r,c,a] of [[560,560,780,[0,194,122],.6],[160,1350,720,[10,124,255],.45],[930,1100,640,[43,255,160],.35],[540,1750,700,[34,211,238],.25]]){
